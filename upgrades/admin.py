@@ -1,31 +1,14 @@
 from django.contrib import admin
-from .models import Upgrades, UpgradesSets, Rarity, Heroes, Lvl, Setsinlvl
-
-
-class HeroesInline(admin.TabularInline):
-    model = UpgradesSets.heroes.through
-    extra = 0
-
-
-class HeroesAdmin(admin.ModelAdmin):
-    list_display = [field.name for field in Heroes._meta.fields]
-    inlines = [
-        HeroesInline,
-    ]
-
-    class Meta:
-        model = Heroes
-
-
-admin.site.register(Heroes, HeroesAdmin)
+from .models import Upgrades, UpgradesSets, Rarity, Troop, Lvl, SetsInLvl, LvlInTroop
 
 
 class UpgradesSetsAdmin(admin.ModelAdmin):
-    list_display = [field.name for field in UpgradesSets._meta.fields]
-    inlines = [
-        HeroesInline,
-    ]
-    exclude = ('heroes',)
+    list_display = ['upgrade_set_name', 'set_gold_for_upgrade', 'set_exp_for_upgrade', 'troop']
+    list_filter = ['troop']
+    search_fields = ['upgrade_set_mame']
+    # raw_id_fields = ['item_1', 'item_2', 'item_3', 'item_4']
+    # save_on_top = True
+    # save_as = True
 
     class Meta:
         model = UpgradesSets
@@ -34,24 +17,25 @@ class UpgradesSetsAdmin(admin.ModelAdmin):
 admin.site.register(UpgradesSets, UpgradesSetsAdmin)
 
 
-class SetsinlvlInline(admin.TabularInline):
-    model = Setsinlvl
+class SetsInLvlInline(admin.TabularInline):
+    model = SetsInLvl
     extra = 0
 
 
-class SetsinlvlAdmin (admin.ModelAdmin):
-    list_display = [field.name for field in Setsinlvl._meta.fields]
+class SetsInLvlAdmin (admin.ModelAdmin):
+    list_display = [field.name for field in SetsInLvl._meta.fields]
 
     class Meta:
-        model = Setsinlvl
+        model = SetsInLvl
 
 
-admin.site.register(Setsinlvl, SetsinlvlAdmin)
+admin.site.register(SetsInLvl, SetsInLvlAdmin)
 
 
 class LvlAdmin (admin.ModelAdmin):
     list_display = [field.name for field in Lvl._meta.fields]
-    inlines = [SetsinlvlInline]
+    inlines = [SetsInLvlInline]
+    list_filter = ['troop']
 
     class Meta:
         model = Lvl
@@ -59,14 +43,42 @@ class LvlAdmin (admin.ModelAdmin):
 
 admin.site.register(Lvl, LvlAdmin)
 
+
 class UpgradesAdmin(admin.ModelAdmin):
-     list_display = ['upgrades_rarity', 'upgrades_name']
+    list_display = ['upgrades_name', 'upgrades_rarity', 'gold_for_upgrade', 'exp_for_upgrade', 'gold_for_sale']
     # fields = ('upgrades_rarity', 'upgrades_name')
+    list_filter = ['upgrades_rarity']
+    list_editable = ['gold_for_upgrade']
+    list_per_page = 100
+    # list_display_links = ['upgrades_name', 'upgrades_rarity']
+    search_fields = ['upgrades_name']
 
 
-# admin.site.register(Heroes, HeroesAdmin)
 admin.site.register(Upgrades, UpgradesAdmin)
-#admin.site.register(UpgradesSets)
+
+
+class LvlInTroopInline(admin.TabularInline):
+    model = LvlInTroop
+    extra = 0
+
+
+class LvlInTroopAdmin (admin.ModelAdmin):
+    list_display = [field.name for field in LvlInTroop._meta.fields]
+
+    class Meta:
+        model = SetsInLvl
+
+
+admin.site.register(LvlInTroop, LvlInTroopAdmin)
+
+
+class TroopAdmin(admin.ModelAdmin):
+    list_display = ['troop_name', 'total_exp']
+    inlines = [LvlInTroopInline]
+
+    class Meta:
+        model = Troop
+
+
+admin.site.register(Troop, TroopAdmin)
 admin.site.register(Rarity)
-#admin.site.register(Heroes)
-# Register your models here.
